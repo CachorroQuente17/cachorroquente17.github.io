@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Linkify • Afiliados</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0a0a0f, #1a1a2e);
+      color: #e0e0e0;
+      text-align: center;
+      padding: 30px 15px;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 760px;
+      margin: auto;
+      background: #16161e;
+      padding: 40px 25px;
+      border-radius: 24px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
+      border: 1px solid #2a2a3a;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin: 0 0 8px 0;
+      background: linear-gradient(90deg, #00ff9d, #00cc6a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: #a0a0b0;
+      font-size: 1.15rem;
+      margin-bottom: 35px;
+    }
+
+    .examples {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+
+    .example-btn {
+      background: #1e1e2e;
+      border: 1px solid #3a3a4a;
+      color: #c0c0d0;
+      padding: 10px 18px;
+      border-radius: 50px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .example-btn:hover {
+      background: #25253a;
+      border-color: #00ff9d;
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    input {
+      width: 100%;
+      padding: 18px 22px;
+      font-size: 1.1rem;
+      background: #0f0f17;
+      border: 2px solid #2a2a3a;
+      border-radius: 16px;
+      color: white;
+      outline: none;
+      margin-bottom: 20px;
+      transition: all 0.3s;
+    }
+
+    input:focus {
+      border-color: #00ff9d;
+      box-shadow: 0 0 0 5px rgba(0, 255, 157, 0.15);
+    }
+
+    button.main {
+      padding: 18px 45px;
+      font-size: 1.25rem;
+      font-weight: 600;
+      background: linear-gradient(90deg, #00cc6a, #00ff9d);
+      color: #000;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 8px 20px rgba(0, 204, 106, 0.3);
+    }
+
+    button.main:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 15px 30px rgba(0, 204, 106, 0.4);
+    }
+
+    #resultado {
+      margin-top: 35px;
+      padding: 28px;
+      background: #0f0f17;
+      border-radius: 20px;
+      border: 1px solid #2a2a3a;
+      text-align: left;
+      display: none;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #00cc6a;
+      color: black;
+      padding: 14px 25px;
+      border-radius: 50px;
+      font-weight: 600;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><i class="fas fa-link"></i> Linkify</h1>
+    <p class="subtitle">Gere links de afiliado em 1 segundo</p>
+
+    <!-- Exemplos -->
+    <div class="examples">
+      <button class="example-btn" onclick="usarExemplo(0)">📱 Samsung Galaxy (ML)</button>
+      <button class="example-btn" onclick="usarExemplo(1)">💻 Notebook Lenovo (Amazon)</button>
+      <button class="example-btn" onclick="usarExemplo(2)">🎧 Fone Bluetooth (ML)</button>
+    </div>
+
+    <input type="text" id="linkInput" placeholder="Cole aqui o link do Mercado Livre, Amazon ou AliExpress...">
+
+    <button class="main" onclick="gerarLink()">
+      <i class="fas fa-magic"></i> Gerar Link Afiliado
+    </button>
+
+    <div id="resultado"></div>
+  </div>
+
+  <div id="toast" class="toast">✅ Link copiado com sucesso!</div>
+
+  <script>
+    const mlAfiliado   = "50894264";
+    const amazonTag    = "luizabreu0f-20";
+
+    const exemplos = [
+      "https://meli.la/2n26Kga",
+      "https://amzn.to/4dVjS2j",
+      "https://produto.mercadolivre.com.br/MLB12345678"
+    ];
+
+    function usarExemplo(index) {
+      document.getElementById("linkInput").value = exemplos[index];
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.style.display = "block";
+      setTimeout(() => {
+        toast.style.display = "none";
+      }, 2500);
+    }
+
+    function gerarLink() {
+      const input = document.getElementById("linkInput").value.trim();
+      const resultado = document.getElementById("resultado");
+      
+      if (!input) {
+        showToast("❌ Por favor, cole um link!");
+        return;
+      }
+
+      let linkGerado = input;
+      let plataforma = "";
+
+      if (input.includes("mercadolivre.com") || input.includes("meli.la")) {
+        plataforma = "Mercado Livre";
+        linkGerado = input.split("?")[0] + (input.includes("?") ? "&" : "?") + `affiliate=${mlAfiliado}`;
+      } 
+      else if (input.includes("amazon.com") || input.includes("amzn.to")) {
+        plataforma = "Amazon";
+        linkGerado = input.split("?")[0] + (input.includes("?") ? "&" : "?") + `tag=${amazonTag}`;
+      } 
+      else if (input.includes("aliexpress.com")) {
+        plataforma = "AliExpress";
+        linkGerado = input.split("?")[0] + (input.includes("?") ? "&" : "?") + `aff_short_link=1`;
+      } 
+      else {
+        showToast("❌ Link não reconhecido!");
+        return;
+      }
+
+      resultado.style.display = "block";
+      resultado.innerHTML = `
+        <div style="color: #00ff9d; font-weight: 600; margin-bottom: 15px; font-size: 1.2rem;">
+          ✅ ${plataforma}
+        </div>
+        <div style="background: #1e1e2e; padding: 18px; border-radius: 14px; word-break: break-all; border-left: 5px solid #00ff9d;">
+          <strong>Seu link de afiliado:</strong><br><br>
+          <a href="\( {linkGerado}" target="_blank" style="color:#00ff9d; text-decoration:none;"> \){linkGerado}</a>
+        </div>
+        <br>
+        <button onclick="copiarLink('${linkGerado}')" 
+                style="background:#00cc6a; color:black; border:none; padding:14px 32px; border-radius:12px; font-weight:600; cursor:pointer;">
+          📋 Copiar Link
+        </button>
+      `;
+    }
+
+    function copiarLink(link) {
+      navigator.clipboard.writeText(link).then(() => {
+        showToast("✅ Link copiado com sucesso!");
+      });
+    }
+  </script>
+</body>
+</html>
